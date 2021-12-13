@@ -4,7 +4,7 @@ const seatSchema = new mongoose.Schema(
   {
     show: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "show",
+      referances: "show",
       required: true,
     },
   },
