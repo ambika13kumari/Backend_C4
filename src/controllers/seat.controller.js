@@ -1,25 +1,24 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Seat = require('../models/seat.model');
+const Seat = require("../models/seats.model");
 
-router.post('/seat', async (req, res) => {
-    try {
-        const seat = await Seat.create();
-
-        return res.status(201).json({ status: 'Success', seat: seat });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+router.get("/:show", async (req, res) => {
+  try {
+    const seats = await Seat.find().populate({path:"show", select:"total_seats"});
+    res.status(201).send(seats);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
-router.get('/seats', async (req, res) => {
-    try {
-        const seat = await Seat.find().lean().exec();
+router.post("/", async (req, res) => {
+  try {
+    const seat = await Seat.create(req.body);
 
-        return res.status(200).json({ status: 'Success', seat: seat });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+    res.status(201).send(seat);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
 module.exports = router;

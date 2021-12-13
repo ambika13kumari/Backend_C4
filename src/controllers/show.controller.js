@@ -1,31 +1,26 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Show = require('../models/show.model');
+const upload = require("../middlewares/upload");
+const Show = require("../models/show.model");
 
-router.get('/shows/:movie_id', async (req, res) => {
-    try {
-        const show = await Show.find({ movie_id: req.params.movie_id })
-            .lean()
-            .exec();
+router.get("/:id", async (req, res) => {
+  try {
+    const shows = await Show.find({movie:{$eq:req.params.id}}).populate({path:"movie", select:"name"});
 
-        return res.status(200).json({ status: 'Success', show: show });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+    res.status(201).send(shows);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
-router.get('/shows/nearest/:movie_id', async (req, res) => {
-    try {
-        const show = await Show.find({
-            $and: [{ movie_id: req.params.movie_id }, { total_seats }],
-        })
-            .lean()
-            .exec();
+router.post("/", async (req, res) => {
+  try {
+    const show = await Show.create(req.body);
 
-        return res.status(200).json({ status: 'Success', show: show });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+    res.status(201).send(show);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
 module.exports = router;

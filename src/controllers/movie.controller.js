@@ -1,26 +1,32 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Movie = require('../models/movie.model');
+const upload = require("../middlewares/upload");
+const Movie = require("../models/movie.model");
 
-router.post('/movie', async (req, res) => {
-    try {
-        const movie = await Movie.create(req.body);
+router.get("/:actors", async (req, res) => {
+  try {
+    const movies = await Movie.find({ actors: { $in: [req.params.actors] } });
 
-        return res.status(200).send(movie);
-        // return res.status(200).json({  movie: movie });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+    res.status(201).send(movies);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
-router.get('/movies', async (req, res) => {
-    try {
-        const movie = await Movie.find(req.body).lean().exec();
+router.post("/", upload.single("poster_url"), async (req, res) => {
+  try {
+    const movie = await Movie.create({
+      name: req.body.name,
+      actors: req.body.actors,
+      languages: req.body.languages,
+      directors: req.body.directors,
+      poster_url: req.file.path,
+    });
 
-        return res.status(200).json({ movie: movie });
-    } catch (e) {
-        return res.status(500).json({ status: 'Failed', message: e.message });
-    }
+    res.status(201).send(movie);
+  } catch (e) {
+    return res.status(500).json({ message: e.message, status: "Failed" });
+  }
 });
 
 module.exports = router;
